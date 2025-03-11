@@ -14,25 +14,33 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"
+          python-version: "3.10"
 
       - name: Install Dependencies
         run: |
-          pip install -r requirements.txt || echo "No dependencies needed"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install build
+
+      - name: Lint Code with flake8
+        run: flake8 mypackage/
+
+      - name: Check Formatting with black
+        run: black --check mypackage/
 
       - name: Run Tests
-        run: python -m unittest discover tests
+        run: pytest mypackage/
 
       - name: Build Package
-        run: python setup.py sdist bdist_wheel
+        run: python -m build
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: python-ci-cd
+          name: python-build
           path: dist/
